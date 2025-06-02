@@ -11,9 +11,9 @@ class User extends Model
     use HasFactory;
     use Notifiable;
 
-     public $timestamps = false;
+    public $timestamps = false;
 
-    protected $fillable =[
+    protected $fillable = [
         'name',
         'email',
         'password',
@@ -23,4 +23,14 @@ class User extends Model
     protected $hidden = [
         'password',
     ];
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
 }
