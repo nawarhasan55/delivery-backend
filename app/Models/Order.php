@@ -11,13 +11,23 @@ class Order extends Model
     use HasFactory;
     use Notifiable;
 
-     public $timestamps = false;
+    public $timestamps = false;
 
-    protected $fillable =[
+    protected $fillable = [
         'order_name',
         'source',
         'destination',
+        'user_id',
+        'driver_id'
     ];
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
+    public function driver()
+    {
+        return $this->belongsTo(Driver::class);
+    }
 }

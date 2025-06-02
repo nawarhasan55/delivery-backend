@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 
-class Drive extends Model
+class Driver extends Model
 {
     use HasFactory;
     use Notifiable;
@@ -22,4 +22,14 @@ class Drive extends Model
     protected $hidden = [
         'password',
     ];
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
 }

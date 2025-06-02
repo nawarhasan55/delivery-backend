@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('drives', function (Blueprint $table) {
+        Schema::create('notifications', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->integer('phone');
-            $table->string('email')->unique();
-            $table->string('password');
-            //$table->timestamps();
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('driver_id')->constrained('drivers')->cascadeOnDelete();
+            $table->longText('notif_content');
+            $table->timestamps();
         });
     }
 
@@ -26,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('drives');
+        Schema::dropIfExists('notifications');
     }
 };

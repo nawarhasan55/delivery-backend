@@ -12,6 +12,18 @@ class Notification extends Model
     use Notifiable;
 
     protected $fillable = [
-        'not_content',
+        'notif_content',
+        'user_id',
+        'driver_id'
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function driver()
+    {
+        return $this->belongsTo(Driver::class);
+    }
 }
