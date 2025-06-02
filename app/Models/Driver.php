@@ -11,7 +11,6 @@ class Driver extends Model
     use HasFactory;
     use Notifiable;
 
-    public $timestamps = false;
 
     protected $fillable = [
         'name',
