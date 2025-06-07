@@ -16,7 +16,7 @@ class UserController extends Controller
     {
         $validator = Validator::make($request->all(),[
             'name' => 'required|string',
-            'phone' => 'required|string',
+            'phone' => 'required|string|unique:users,phone',
             'email' => 'required|string|email|unique:users,email',
             'password' => 'required|confirmed|min:8',
             'role' => [
@@ -29,21 +29,21 @@ class UserController extends Controller
                 'status' => 0,
                 'message'=> $validator->errors()], 400);
         }
-
+        $data = $validator->validated();
         $user = User::create([
-            'name' => $request->name,
-            'phone' => $request->phone,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => $request->role,
+            'name' => $data['name'],
+            'phone' =>$data['phone'],
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
+            'role' => $data['role'],
         ]);
 
         $token = JWTAuth::fromUser($user);
 
         return response()->json([
             'status'=>1,
-            'message' => 'added user successfully',
-            'User' => $user,
+            //'message' => 'added user successfully',
+            //'user' => $user,
             'token' => $token
         ],201);
     }
@@ -59,22 +59,22 @@ class UserController extends Controller
             if (!$user) {
                 return response()->json([
                     'status' => 0,
-                    'error' => 'Email not found'
+                    'message' => 'Email not found'
                 ], 401);
             }
             // تحقق من كلمة المرور
             if (!auth()->attempt($credentials)) {
                 return response()->json([
                     'status' => 0,
-                    'error' => 'Incorrect password'
+                    'message' => 'Incorrect password'
                 ], 401);
             }
         }
         return response()->json([
             'status'=>1,
-            'message' => 'Login successful',
+            //'message' => 'Login successful',
+            //'user' => auth()->user(),
             'token' => $token,
-            'user' => auth()->user(),
         ]);
     }
 
@@ -87,6 +87,5 @@ class UserController extends Controller
             'message' => 'User successfully signed out']);
     }
 }
-//return response()->json('true');
 
 
