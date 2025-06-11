@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\VerifyEmail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Validation\Rule;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Validator;
@@ -37,6 +41,14 @@ class UserController extends Controller
             'password' => Hash::make($data['password']),
             'role' => $data['role'],
         ]);
+
+        // إرسال رابط التحقق المؤقت
+        $verificationUrl = URL::temporarySignedRoute(
+            'auth.verify',
+            Carbon::now()->addMinutes(60),
+            ['id' => $user->id]
+        );
+        Mail::to($user->email)->send(new VerifyEmail($verificationUrl));
 
         $token = JWTAuth::fromUser($user);
 
@@ -70,6 +82,17 @@ class UserController extends Controller
                 ], 401);
             }
         }
+        // نحصل على المستخدم بعد نجاح تسجيل الدخول
+        $user = auth()->user();
+
+        // التحقق من البريد
+        if (!$user->email_verified_at) {
+            return response()->json([
+                'status' => 0,
+                'message' => 'Please verify your email first.'
+            ], 403);
+        }
+
         return response()->json([
             'status'=>1,
             //'message' => 'Login successful',
