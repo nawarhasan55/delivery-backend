@@ -43,13 +43,13 @@ class UserController extends Controller
             'role' => $data['role'],
         ]);
 
-        // إرسال رابط التحقق المؤقت
+       /* // إرسال رابط التحقق المؤقت
         $verificationUrl = URL::temporarySignedRoute(
             'auth.verify',
             Carbon::now()->addMinutes(60),
             ['id' => $user->id]
         );
-        Mail::to($user->email)->send(new VerifyEmail($verificationUrl));
+        Mail::to($user->email)->send(new VerifyEmail($verificationUrl));*/
 
         $token = JWTAuth::fromUser($user);
 
@@ -87,12 +87,12 @@ class UserController extends Controller
         $user = auth()->JWTAuth::user();
 
         // التحقق من البريد
-        if (!$user->email_verified_at) {
+        /*if (!$user->email_verified_at) {
             return response()->json([
                 'status' => 0,
                 'message' => 'Please verify your email first.'
             ], 403);
-        }
+        }*/
 
         return response()->json([
             'status' => 1,
