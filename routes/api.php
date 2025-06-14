@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -30,6 +31,10 @@ Route::get('/email/verify/{id}', function ($id, Request $request) {
     return response()->json(['message' => 'Email verified successfully.']);
 })->name('auth.verify');
 
-Route::post('register',[UserController::class,'register']);
-Route::post('login' ,[UserController::class,'login']);
-Route::post('logout' ,[UserController::class,'logout']);
+// Routes for authentication
+Route::post('register', [UserController::class, 'register']);
+Route::post('login', [UserController::class, 'login']);
+Route::post('logout', [UserController::class, 'logout']);
+
+// Route for adding order
+Route::post('store_order', [OrderController::class, 'store']);

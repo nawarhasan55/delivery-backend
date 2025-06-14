@@ -18,7 +18,7 @@ class UserController extends Controller
 {
     public function register(Request $request)
     {
-        $validator = Validator::make($request->all(),[
+        $validator = Validator::make($request->all(), [
             'name' => 'required|string',
             'phone' => 'required|string|unique:users,phone',
             'email' => 'required|string|email|unique:users,email',
@@ -28,15 +28,16 @@ class UserController extends Controller
                 Rule::in(['admin', 'normal'])
             ]
         ]);
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json([
                 'status' => 0,
-                'message'=> $validator->errors()], 400);
+                'message' => $validator->errors()
+            ], 400);
         }
         $data = $validator->validated();
         $user = User::create([
             'name' => $data['name'],
-            'phone' =>$data['phone'],
+            'phone' => $data['phone'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
             'role' => $data['role'],
@@ -53,11 +54,11 @@ class UserController extends Controller
         $token = JWTAuth::fromUser($user);
 
         return response()->json([
-            'status'=>1,
+            'status' => 1,
             //'message' => 'added user successfully',
             //'user' => $user,
             'token' => $token
-        ],201);
+        ], 201);
     }
 
     public function login(Request $request)
@@ -75,7 +76,7 @@ class UserController extends Controller
                 ], 401);
             }
             // تحقق من كلمة المرور
-            if (!auth()->attempt($credentials)) {
+            if (!auth()->JWTAuth::attempt($credentials)) {
                 return response()->json([
                     'status' => 0,
                     'message' => 'Incorrect password'
@@ -83,7 +84,7 @@ class UserController extends Controller
             }
         }
         // نحصل على المستخدم بعد نجاح تسجيل الدخول
-        $user = auth()->user();
+        $user = auth()->JWTAuth::user();
 
         // التحقق من البريد
         if (!$user->email_verified_at) {
@@ -94,7 +95,7 @@ class UserController extends Controller
         }
 
         return response()->json([
-            'status'=>1,
+            'status' => 1,
             //'message' => 'Login successful',
             //'user' => auth()->user(),
             'token' => $token,
@@ -107,8 +108,7 @@ class UserController extends Controller
 
         return response()->json([
             'status' => 1,
-            'message' => 'User successfully signed out']);
+            'message' => 'User successfully signed out'
+        ]);
     }
 }
-
-
