@@ -26,11 +26,6 @@ class StoreOrderRequest extends FormRequest
             'order_name' => 'required|string',
             'source' => 'required|string',
             'destination' => 'required|string',
-            'status' => [
-                'required',
-                'string',
-                Rule::in(['pending', 'in_progress', 'completed', 'cancelled'])
-            ]
         ];
     }
 }
