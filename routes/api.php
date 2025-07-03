@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -36,5 +37,10 @@ Route::post('register', [UserController::class, 'register']);
 Route::post('login', [UserController::class, 'login']);
 Route::post('logout', [UserController::class, 'logout']);
 
-// Route for adding order
-Route::post('store_order', [OrderController::class, 'store']);
+Route::middleware(['auth:api'])->group(function () {
+    Route::post('store_order', [OrderController::class, 'store']);// Route for adding order
+    Route::get('/orders/my_orders', [OrderController::class, 'getMyOrders']);// Route for view all order of user
+    Route::get('/orders/my_pending_orders', [OrderController::class, 'getMyPendingOrders']);//Route for view pending order of user
+    Route::delete('/orders/{id}', [OrderController::class, 'deletePendingOrder']);
+    Route::put('/orders/{id}', [OrderController::class, 'updatePendingOrder']);
+});

@@ -6,7 +6,7 @@ use App\Http\Requests\StoreOrderRequest;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-
+use Illuminate\Support\Facades\Validator;
 class OrderController extends Controller
 {
     public function store(StoreOrderRequest $request)
@@ -21,7 +21,77 @@ class OrderController extends Controller
         return response()->json([
             'status'=>1,
             'message'=>'order added successfully',
-            'order'=>$order
+            //'order'=>$order
         ], 200);
+    }
+    public function getMyOrders(Request $request)
+    {
+        $user=auth('api')->user();
+        $orders=Order::where('user_id',$user->id)->get();
+        return response()->json([
+            'status'=>1,
+            'message'=> 'Fetched user orders successfully',
+            'orders'=>$orders,
+        ]);
+    }
+
+    public function getMyPendingOrders(Request $request)
+    {
+        $user=auth('api')->user();
+        $pendingOrders=Order::where('user_id',$user->id)->where('status','pending')->get();
+        return response()->json([
+            'status'=>1,
+            'message'=> 'Fetched user pending orders successfully',
+            'orders'=>$pendingOrders,
+        ]);
+    }
+
+    public function deletePendingOrder($id)
+    {
+        $user=auth('api')->user();
+        $order=Order::where('id',$id)->where('user_id',$user->id)
+            ->where('status','pending')->first();
+        if (!$order) {
+            return response()->json([
+                'status'=> 0,
+                'message'=> 'There are no pending orders'
+            ], 404);
+        }
+        $order->delete();
+        return response()->json([
+            'status'=> 1,
+            'message'=> 'Order deleted successfully'
+        ]);
+    }
+    public function updatePendingOrder(Request $request,$id)
+    {
+        $user=auth('api')->user();
+        $order=Order::where('id',$id)->where('user_id',$user->id)
+            ->where('status','pending')->first();
+        if (!$order) {
+            return response()->json([
+                'status'=> 0,
+                'message'=> 'There are no pending orders'
+            ], 404);
+        }
+        $validator = Validator::make($request->all(), [
+            'order_name' => 'required|string',
+            'source' => 'required|string',
+            'destination' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json([
+                'status' => 0,
+                'message' => $errors[0]
+            ], 400);
+        }
+        $order->update($validator->validated());
+
+        return response()->json([
+            'status'=> 1,
+            'message'=> 'Order update successfully'
+        ]);
     }
 }
