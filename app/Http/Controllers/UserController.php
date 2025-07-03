@@ -29,9 +29,10 @@ class UserController extends Controller
             ]
         ]);
         if ($validator->fails()) {
+            $errors = $validator->errors()->all(); // تجيب كل الرسائل كنصوص
             return response()->json([
                 'status' => 0,
-                'message' => $validator->errors()
+                'message' => $errors[0]
             ], 400);
         }
         $data = $validator->validated();
@@ -76,7 +77,7 @@ class UserController extends Controller
                 ], 401);
             }
             // تحقق من كلمة المرور
-            if (!auth()->JWTAuth::attempt($credentials)) {
+            if (!auth()->attempt($credentials)) {
                 return response()->json([
                     'status' => 0,
                     'message' => 'Incorrect password'
@@ -84,7 +85,7 @@ class UserController extends Controller
             }
         }
         // نحصل على المستخدم بعد نجاح تسجيل الدخول
-        $user = auth()->JWTAuth::user();
+        $user = auth()->user();
 
         // التحقق من البريد
         /*if (!$user->email_verified_at) {
