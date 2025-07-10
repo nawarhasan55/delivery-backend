@@ -112,4 +112,53 @@ class UserController extends Controller
             'message' => 'User successfully signed out'
         ]);
     }
+
+    public function getprofile()
+    {
+        $user= auth('api')->user();
+        return response()->json([
+           'status'=> 1,
+           'message'=> 'User Profile Fetched',
+            //'user'=>$user,
+        ]);
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user=auth('api')->user();
+        $validator= Validator::make($request->all(),[
+            'name'=> 'sometimes|required|string|max:255',
+            'phone'=>['sometimes','required','string',
+                Rule::unique('users')->ignore($user->id),//للتاكد من ان القيمة المدخلة فريدة بين كل المستخدمين ما عدا المستخدم الحالي
+                ],
+            'email'=>['sometimes','required','email',
+                Rule::unique('users')->ignore($user->id),
+                ],
+        ]);
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json([
+                'status' =>0,
+                'message' =>$errors[0]
+            ], 400);
+        }
+        $data=$validator->validated();
+        //نحدث فقط القيم اللي بيوصل
+        if(isset($data['name'])){
+            $user->name=$data['name'];
+        }
+        if(isset($data['phone'])){
+            $user->phone=$data['phone'];
+        }
+        if(isset($data['email'])){
+            $user->email=$data['email'];
+        }
+        $user->save();
+        return response()->json([
+            'status'=>1,
+            'message'=>'Profile updated successfully',
+            //'user'=>$user
+        ]);
+
+    }
 }

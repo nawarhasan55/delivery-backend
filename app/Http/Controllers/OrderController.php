@@ -75,9 +75,9 @@ class OrderController extends Controller
             ], 404);
         }
         $validator = Validator::make($request->all(), [
-            'order_name' => 'required|string',
-            'source' => 'required|string',
-            'destination' => 'required|string',
+            'order_name' => 'sometimes|required|string',
+            'source' => 'sometimes|required|string',
+            'destination' => 'sometimes|required|string',
         ]);
 
         if ($validator->fails()) {

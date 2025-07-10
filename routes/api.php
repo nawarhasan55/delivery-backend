@@ -43,4 +43,6 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('/orders/my_pending_orders', [OrderController::class, 'getMyPendingOrders']);//Route for view pending order of user
     Route::delete('/orders/{id}', [OrderController::class, 'deletePendingOrder']);
     Route::put('/orders/{id}', [OrderController::class, 'updatePendingOrder']);
+    Route::get('/user/profile', [UserController::class, 'getProfile']);
+    Route::put('/user/profile', [UserController::class, 'updateProfile']);
 });
