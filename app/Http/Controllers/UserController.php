@@ -77,7 +77,7 @@ class UserController extends Controller
                 ], 401);
             }
             // تحقق من كلمة المرور
-            if (!auth()->attempt($credentials)) {
+            if (!auth()->JWTAuth::attempt($credentials)) {
                 return response()->json([
                     'status' => 0,
                     'message' => 'Incorrect password'
@@ -85,7 +85,7 @@ class UserController extends Controller
             }
         }
         // نحصل على المستخدم بعد نجاح تسجيل الدخول
-        $user = auth()->user();
+        $user = auth()->JWTAuth::user();
 
         // التحقق من البريد
         /*if (!$user->email_verified_at) {
@@ -153,7 +153,7 @@ class UserController extends Controller
         if(isset($data['email'])){
             $user->email=$data['email'];
         }
-        $user->save();
+        $user->JWTAuth::save();
         return response()->json([
             'status'=>1,
             'message'=>'Profile updated successfully',
