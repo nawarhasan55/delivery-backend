@@ -29,6 +29,7 @@ class DriverResource extends Resource
                 Forms\Components\TextInput::make('phone')
                     ->tel()
                     ->required()
+                    ->unique(ignoreRecord: true)
                     ->maxLength(255),
                 Forms\Components\TextInput::make('email')
                     ->email()
@@ -36,8 +37,10 @@ class DriverResource extends Resource
                     ->maxLength(255),
                 Forms\Components\TextInput::make('password')
                     ->password()
-                    ->required()
-                    ->maxLength(255),
+                ->dehydrateStateUsing(fn ($state) => filled($state) ? bcrypt($state) : null)
+                ->maxLength(255)
+                ->required(fn (string $context): bool => $context === 'create')
+                ->label('Password'),
             ]);
     }
 

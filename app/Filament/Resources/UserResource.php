@@ -9,6 +9,11 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use App\Filament\Resources\UserResource\Pages;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
 
 class UserResource extends Resource
@@ -23,30 +28,31 @@ class UserResource extends Resource
     public static function form(Form $form): Form
     {
         return $form->schema([
-            Forms\Components\TextInput::make('name')
+            TextInput::make('name')
                 ->required()
                 ->maxLength(255),
 
-            Forms\Components\TextInput::make('phone')
+            TextInput::make('phone')
                 ->tel()
                 ->required()
                 ->unique(ignoreRecord: true)
                 ->maxLength(255),
 
-            Forms\Components\TextInput::make('email')
+            TextInput::make('email')
                 ->email()
                 ->required()
                 ->unique(ignoreRecord: true)
                 ->maxLength(255),
 
-            Forms\Components\TextInput::make('password')
+            TextInput::make('password')
                 ->password()
+                ->visibleOn('create')
                 ->dehydrateStateUsing(fn ($state) => filled($state) ? bcrypt($state) : null)
                 ->maxLength(255)
                 ->required(fn (string $context): bool => $context === 'create')
                 ->label('Password'),
 
-            Forms\Components\Select::make('role')
+            Select::make('role')
                 ->required()
                 ->options([
                     'admin' => 'admin',
@@ -54,11 +60,11 @@ class UserResource extends Resource
                 ])
                 ->native(false),
 
-            Forms\Components\DateTimePicker::make('email_verified_at')
-                ->label('Email Verified At')
-                ->seconds(false)
-                ->default(null)
-                ->nullable(),
+            //Forms\Components\DateTimePicker::make('email_verified_at')
+              //  ->label('Email Verified At')
+                //->seconds(false)
+                //->default(null)
+                //->nullable(),
         ]);
     }
 
@@ -66,27 +72,28 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')->searchable(),
-                Tables\Columns\TextColumn::make('phone')->searchable(),
-                Tables\Columns\TextColumn::make('email')->searchable(),
-                Tables\Columns\BadgeColumn::make('role')
+                TextColumn::make('id'),
+                TextColumn::make('name')->searchable(),
+                TextColumn::make('phone')->searchable(),
+                TextColumn::make('email')->searchable(),
+                BadgeColumn::make('role')
                     ->colors([
                         'primary' => 'admin',
                         'secondary' => 'user',
                     ]),
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->since() // more readable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
+                TextColumn::make('updated_at')
                     ->since()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->defaultSort('created_at', 'desc')
+            ->defaultSort('created_at',)
             ->filters([])
             ->actions([
-                Tables\Actions\ViewAction::make(),
+                ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
