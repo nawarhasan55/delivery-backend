@@ -4,8 +4,12 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\OrderResource\Pages;
 use App\Filament\Resources\OrderResource\RelationManagers;
+use App\Models\Driver;
 use App\Models\Order;
+use App\Models\User;
 use Filament\Forms;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -23,23 +27,32 @@ class OrderResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('user_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('driver_id')
-                    ->numeric()
-                    ->default(null),
-                Forms\Components\TextInput::make('order_name')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('source')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('destination')
+                Select::make('user_id')
+                    ->label('user')
+                    ->options(User::all()->pluck('name','id'))
+                    ->searchable(),
+                Select::make('driver_id')
+                    ->label('driver')
+                    ->options(Driver::all()->pluck('name','id'))
+                    ->searchable(),
+                TextInput::make('order_name')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('status')
-                    ->required(),
+                TextInput::make('source')
+                    ->required()
+                    ->maxLength(255),
+                TextInput::make('destination')
+                    ->required()
+                    ->maxLength(255),
+                Select::make('status')
+                ->required()
+                ->options([
+                    'pending' => 'pending',
+                    'in_progress' => 'in_progress',
+                    'completed' => 'completed',
+                    'cancelled' => 'cancelled',
+                ])
+                ->native(false),
             ]);
     }
 
