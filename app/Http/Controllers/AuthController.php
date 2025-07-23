@@ -18,8 +18,8 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
+            'email'=> 'required|email',
+            'password'=> 'required',
             'account_type' => 'required|in:user,driver'
         ]);
 
@@ -27,18 +27,18 @@ class AuthController extends Controller
         $accountType = $request->account_type;
 
         if ($accountType === 'user') {
-            $user = User::where('email', $credentials['email'])->first();
+            $user =User::where('email', $credentials['email'])->first();
 
-            if (!$user) {
+            if(!$user) {
                 return response()->json([
                     'status' => 0,
-                    'message' => 'Invalid email'
+                    'message'=> 'Invalid email'
                 ], 401);
             }
 
             if (!Hash::check($credentials['password'], $user->password)) {
                 return response()->json([
-                    'status' => 0,
+                    'status'=> 0,
                     'message' => 'Invalid password'
                 ], 401);
             }
@@ -46,7 +46,7 @@ class AuthController extends Controller
             $token = JWTAuth::fromUser($user);
 
             return response()->json([
-                'status' => 1,
+                'status'=> 1,
                 'token' => $token,
                 //'account_type' => $user->role,
                 //'message' => 'User login successful'
@@ -54,7 +54,7 @@ class AuthController extends Controller
         }
 
         if ($accountType === 'driver') {
-            $driver = Driver::where('email', $credentials['email'])->first();
+            $driver =Driver::where('email', $credentials['email'])->first();
 
             if (!$driver) {
                 return response()->json([
@@ -66,7 +66,7 @@ class AuthController extends Controller
             if (!Hash::check($credentials['password'], $driver->password)) {
                 return response()->json([
                     'status' => 0,
-                    'message' => 'Invalid password'
+                    'message'=> 'Invalid password'
                 ], 401);
             }
 
@@ -91,76 +91,78 @@ class AuthController extends Controller
 
         return response()->json([
             'status' => 1,
-            'message' => 'Logged out successfully'
+            'message'=> 'Logged out successfully'
         ]);
     }
 
     public function getProfile()
     {
-        $user = null;
+        $user =null;
 
         // نحاول جلب المستخدم من Guard 'api'
-        if ($user = auth('api')->user()) {
+        if ($user=auth('api')->user()) {
             return response()->json([
-                'status' => 1,
-                'message' => 'User profile fetched successfully',
-                'user' => $user
+                'status'=> 1,
+                'message'=> 'User profile fetched successfully',
+                'user'=> $user
             ]);
         }
 
         // نحاول جلب السائق من Guard 'driver'
-        if ($user = auth('driver')->user()) {
+        if($user= auth('driver')->user()) {
             return response()->json([
-                'status' => 1,
-                'message' => 'Driver profile fetched successfully',
+                'status'=> 1,
+                'message'=> 'Driver profile fetched successfully',
                 //'driver' => $user
             ]);
         }
 
         return response()->json([
-            'status' => 0,
-            'message' => 'Unauthorized or Invalid token'
+            'status'=> 0,
+            'message'=> 'Unauthorized or Invalid token'
         ], 401);
     }
     public function updateProfile(Request $request)
     {
         $user = null;
 
-        if ($user = auth('api')->user()) {
+        if($user = auth('api')->user()) {
             $guard = 'users';
-        } elseif ($user = auth('driver')->user()) {
+        } elseif($user = auth('driver')->user()) {
             $guard = 'drivers';
-        } else {
+        } else{
             return response()->json([
-                'status' => 0,
-                'message' => 'Unauthorized or Invalid token'
+                'status'=> 0,
+                'message'=> 'Unauthorized or Invalid token'
             ], 401);
         }
 
-        $validator = Validator::make($request->all(), [
-            'name' => 'sometimes|required|string|max:255',
-            'phone' => [
+        $validator= Validator::make($request->all(),[
+            'name'=> 'sometimes|required|string|max:255',
+            'phone'=> [
                 'sometimes', 'required', 'string',
                 Rule::unique($guard)->ignore($user->id),
             ],
-            'email' => [
+            'email'=> [
                 'sometimes', 'required', 'email',
                 Rule::unique($guard)->ignore($user->id),
             ],
+            'password'=>'sometimes|required|confirmed|min:8|confirmed',
         ]);
 
-        if ($validator->fails()) {
+        if($validator->fails()) {
             return response()->json([
-                'status' => 0,
-                'message' => $validator->errors()->first()
+                'status'=> 0,
+                'message'=> $validator->errors()->first()
             ], 400);
         }
 
-        $data = $validator->validated();
+        $data= $validator->validated();
 
-        if (isset($data['name'])) $user->name = $data['name'];
-        if (isset($data['phone'])) $user->phone = $data['phone'];
-        if (isset($data['email'])) $user->email = $data['email'];
+        if(isset($data['name'])) $user->name =$data['name'];
+        if(isset($data['phone'])) $user->phone =$data['phone'];
+        if(isset($data['email'])) $user->email =$data['email'];
+        if(isset($data['password'])) $user->password =Hash::make($data['password']);
 
         $user->save();
 
