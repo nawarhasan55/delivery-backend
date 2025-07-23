@@ -9,6 +9,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Validator;
 class OrderController extends Controller
 {
+    //قيام المستخدم بطلب طلبية
     public function store(StoreOrderRequest $request)
     {
         $order = Order::create([
@@ -24,6 +25,7 @@ class OrderController extends Controller
             //'order'=>$order
         ], 200);
     }
+    //قيام المستخدم بعرض طلباته
     public function getMyOrders(Request $request)
     {
         $user=auth('api')->user();
@@ -35,6 +37,7 @@ class OrderController extends Controller
         ]);
     }
 
+    //قيام المستخدم بعرض طلباته pending
     public function getMyPendingOrders(Request $request)
     {
         $user=auth('api')->user();
@@ -45,7 +48,7 @@ class OrderController extends Controller
             'orders'=>$pendingOrders,
         ]);
     }
-
+    //قيام المستخدم بحذف طلبه
     public function deletePendingOrder($id)
     {
         $user=auth('api')->user();
@@ -63,6 +66,7 @@ class OrderController extends Controller
             'message'=> 'Order deleted successfully'
         ]);
     }
+    //قيام المستخدم بتعديل طلبه
     public function updatePendingOrder(Request $request,$id)
     {
         $user=auth('api')->user();
@@ -94,4 +98,142 @@ class OrderController extends Controller
             'message'=> 'Order update successfully'
         ]);
     }
+
+    //قيام عامل التوصيل بقبول طلب
+    public function acceptOrder(Request $request, $orderId)
+    {
+        $driver= auth('driver')->user();
+        if(!$driver){
+            return response()->json([
+                'status' => 0,
+                'message' => 'Unauthorized'
+            ],401);
+        }
+        $order = Order::where('id', $orderId)
+                      ->where('status', 'pending')
+                      ->first();
+        if (!$order) {
+            return response()->json([
+                'status'=> 0,
+                'message'=> 'Order not found or already taken'
+            ],404);
+        }
+
+        $order->status='in_progress';
+        $order->driver_id=$driver->id;
+        $order->save();
+
+        return response()->json([
+            'status'=> 1,
+            'message'=> 'Order accepted successfully',
+            'order'=> $order
+        ]);
+    }
+
+    //قيام عامل التوصيل بعرض الطلب الذي اختاره
+    public function currentOrder()
+    {
+        $driver=auth('driver')->user();
+
+        if(!$driver) {
+            return response()->json([
+                'status'=> 0,
+                'message'=>'Unauthorized'
+            ],401);
+        }
+
+        $order = Order::where('driver_id', $driver->id)
+            ->where('status', 'in_progress')
+            ->with(['user:id,name,phone']) // نجلب اسم المستخدم ورقمه
+            ->first();
+
+        if(!$order) {
+            return response()->json([
+                'status'=>0,
+                'message'=>'No active order found'
+            ]);
+        }
+
+        return response()->json([
+            'status'=>1,
+            'message'=>'Current order fetched successfully',
+            'data'=> $order
+        ]);
+    }
+
+    //قيام عامل التوصيل بعرض كل طلبات pending
+    public function listPendingOrders()
+    {
+        $driver= auth('driver')->user();
+
+        if (!$driver) {
+            return response()->json([
+                'status'=>0,
+                'message'=>'Unauthorized'
+            ], 401);
+        }
+
+        $orders=Order::where('status', 'pending')
+            ->whereNull('driver_id')
+            ->with('user:id,name,phone') // معلومات المستخدم الذي أنشأ الطلب
+            ->get();
+
+        return response()->json([
+            'status'=>1,
+            'message'=>'Pending orders fetched successfully',
+            'data'=>$orders
+        ]);
+    }
+
+    //قيام عامل التوصيل بجعل حالة الطلب completed بعد توصيله الطلب
+    public function completeOrder($orderId)
+    {
+        $driver = auth('driver')->user();
+
+        if (!$driver) {
+            return response()->json([
+                'status' => 0,
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+
+        $order = Order::where('id', $orderId)
+            ->where('driver_id', $driver->id)
+            ->where('status', 'in_progress')
+            ->first();
+
+        if (!$order) {
+            return response()->json([
+                'status' => 0,
+                'message' => 'No active order found'
+            ]);
+        }
+
+        $order->status = 'completed';
+        $order->save();
+
+        return response()->json([
+            'status' => 1,
+            'message' => 'Order marked as completed successfully',
+            'data' => $order
+        ]);
+    }
+
+    //قيام عامل التوصيل بعرض كل الطلبات لديه حالته completed
+    public function listCompletedOrders()
+    {
+        $driver = auth('driver')->user();
+
+        $orders = $driver->orders()
+            ->where('status', 'completed')
+            ->with('user:id,name,phone') // لجلب اسم ورقم المستخدم المرتبط بالطلب
+            ->get();
+
+        return response()->json([
+            'status' => 1,
+            'message' => 'Completed orders fetched successfully',
+            'data' => $orders,
+        ]);
+    }
+
 }

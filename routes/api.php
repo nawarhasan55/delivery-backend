@@ -50,3 +50,11 @@ Route::middleware(['auth:api'])->group(function () {
     Route::put('/orders/{id}', [OrderController::class, 'updatePendingOrder']);
 
 });
+
+Route::middleware('auth:driver')->group(function () {
+    Route::get('/orders/pending', [OrderController::class, 'listPendingOrders']);
+    Route::post('/orders/accept/{id}', [OrderController::class, 'acceptOrder']);
+    Route::get('/orders/current', [OrderController::class, 'currentOrder']);
+    Route::post('/orders/complete/{id}', [OrderController::class, 'completeOrder']);
+    Route::get('/orders/complete', [OrderController::class, 'listCompletedOrders']);
+});

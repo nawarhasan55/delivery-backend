@@ -147,6 +147,7 @@ class AuthController extends Controller
                 'sometimes', 'required', 'email',
                 Rule::unique($guard)->ignore($user->id),
             ],
+            'current_password'=>'required_with:password|string',
             'password'=>'sometimes|required|confirmed|min:8|confirmed',
         ]);
 
@@ -159,10 +160,21 @@ class AuthController extends Controller
 
         $data= $validator->validated();
 
+        //تحقق من كلمة المرور الحالية
+        if(isset($data['password'])){
+            if(!Hash::check($data['current_password'],$user->password)) {
+                return response()->json([
+                    'status' => 0,
+                    'message' => 'Current password is incorrect'
+                ], 400);
+            }
+
+            $user->password= Hash::make($data['password']);
+        }
+
         if(isset($data['name'])) $user->name =$data['name'];
         if(isset($data['phone'])) $user->phone =$data['phone'];
         if(isset($data['email'])) $user->email =$data['email'];
-        if(isset($data['password'])) $user->password =Hash::make($data['password']);
 
         $user->save();
 
