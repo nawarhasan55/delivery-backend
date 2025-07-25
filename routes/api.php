@@ -44,8 +44,9 @@ Route::put('/user/profile', [AuthController::class, 'updateProfile']);
 
 Route::middleware(['auth:api'])->group(function () {
     Route::post('store_order', [OrderController::class, 'store']);// Route for adding order
-    Route::get('/orders/my_orders', [OrderController::class, 'getMyOrders']);// Route for view all order of user
     Route::get('/orders/my_pending_orders', [OrderController::class, 'getMyPendingOrders']);//Route for view pending order of user
+    Route::get('/orders/my_progress_orders', [OrderController::class, 'getMyProgressOrders']);// Route for view progress order of user
+    Route::get('/orders/my_completed_orders', [OrderController::class, 'getMyCompleteOrder']);// Route for view completed order of user
     Route::delete('/orders/{id}', [OrderController::class, 'deletePendingOrder']);
     Route::put('/orders/{id}', [OrderController::class, 'updatePendingOrder']);
 

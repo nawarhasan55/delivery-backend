@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('order_name');
             $table->string('source');
             $table->string('destination');
-            $table->enum('status',['pending', 'in_progress', 'completed', 'cancelled'])->default('pending');
+            $table->enum('status',['pending', 'in_progress', 'completed'])->default('pending');
             $table->rememberToken();
             $table->timestamps();
         });
