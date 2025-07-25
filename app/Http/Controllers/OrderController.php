@@ -25,17 +25,6 @@ class OrderController extends Controller
             //'order'=>$order
         ], 200);
     }
-    //قيام المستخدم بعرض طلباته
-    public function getMyOrders(Request $request)
-    {
-        $user=auth('api')->user();
-        $orders=Order::where('user_id',$user->id)->get();
-        return response()->json([
-            'status'=>1,
-            'message'=> 'Fetched user orders successfully',
-            'orders'=>$orders,
-        ]);
-    }
 
     //قيام المستخدم بعرض طلباته pending
     public function getMyPendingOrders(Request $request)
@@ -48,6 +37,37 @@ class OrderController extends Controller
             'orders'=>$pendingOrders,
         ]);
     }
+
+    //قيام المستخدم بعرض طلباته progress
+    public function getMyProgressOrders(Request $request)
+    {
+        $user=auth('api')->user();
+        $orders=Order::where('user_id',$user->id)->
+        where('status','in_progress')->
+        with(['driver:id,name,phone'])->
+        get();
+        return response()->json([
+            'status'=>1,
+            'message'=> 'Fetched user progress orders successfully',
+            'orders'=>$orders,
+        ]);
+    }
+
+    //قيام المستخدم بعرض طلباته complete
+    public function getMyCompleteOrder(Request $request)
+    {
+        $user=auth('api')->user();
+        $orders=Order::where('user_id',$user->id)->
+        where('status','completed')->
+        with(['driver:id,name,phone'])->
+        get();
+        return response()->json([
+            'status'=>1,
+            'message'=> 'Fetched user completed orders successfully',
+            'order'=>$orders,
+        ]);
+    }
+
     //قيام المستخدم بحذف طلبه
     public function deletePendingOrder($id)
     {
@@ -98,7 +118,7 @@ class OrderController extends Controller
             'message'=> 'Order update successfully'
         ]);
     }
-
+//-----------------------------------------------------------------------------------------
     //قيام عامل التوصيل بقبول طلب
     public function acceptOrder(Request $request, $orderId)
     {
@@ -130,7 +150,7 @@ class OrderController extends Controller
         ]);
     }
 
-    //قيام عامل التوصيل بعرض الطلب الذي اختاره
+    //قيام عامل التوصيل بعرض الطلب الذي اختاره in progress
     public function currentOrder()
     {
         $driver=auth('driver')->user();
@@ -145,7 +165,7 @@ class OrderController extends Controller
         $order = Order::where('driver_id', $driver->id)
             ->where('status', 'in_progress')
             ->with(['user:id,name,phone']) // نجلب اسم المستخدم ورقمه
-            ->first();
+            ->get();
 
         if(!$order) {
             return response()->json([
