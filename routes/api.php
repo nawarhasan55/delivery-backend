@@ -58,4 +58,5 @@ Route::middleware('auth:driver')->group(function () {
     Route::get('/orders/current', [OrderController::class, 'currentOrder']);
     Route::post('/orders/complete/{id}', [OrderController::class, 'completeOrder']);
     Route::get('/orders/complete', [OrderController::class, 'listCompletedOrders']);
+    Route::post('/orders/cancel/{id}', [OrderController::class, 'cancelOrder']);
 });

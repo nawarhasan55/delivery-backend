@@ -113,7 +113,7 @@ class AuthController extends Controller
             return response()->json([
                 'status'=> 1,
                 'message'=> 'Driver profile fetched successfully',
-                'driver' => $user
+                'user' => $user
             ]);
         }
 
