@@ -256,4 +256,35 @@ class OrderController extends Controller
         ]);
     }
 
+    public function cancelOrder(Request $request, $orderId)
+    {
+        $driver= auth('driver')->user();
+        if(!$driver){
+            return response()->json([
+                'status' => 0,
+                'message' => 'Unauthorized'
+            ],401);
+        }
+        $order = Order::where('id', $orderId)
+            ->where('driver_id',$driver->id)
+            ->where('status', 'in_progress')
+            ->first();
+        if (!$order) {
+            return response()->json([
+                'status'=> 0,
+                'message'=> 'Order not found or already taken'
+            ],404);
+        }
+
+        $order->status='pending';
+        $order->driver_id=null;
+        $order->save();
+
+        return response()->json([
+            'status'=> 1,
+            'message'=> 'Order canceled successfully',
+            'order'=> $order
+        ]);
+    }
+
 }
