@@ -87,7 +87,7 @@ class AuthController extends Controller
     }
     public function logout()
     {
-        auth()->logout();
+        auth()->JWTAuth::logout();
 
         return response()->json([
             'status' => 1,
@@ -176,7 +176,7 @@ class AuthController extends Controller
         if(isset($data['phone'])) $user->phone =$data['phone'];
         if(isset($data['email'])) $user->email =$data['email'];
 
-        $user->save();
+        $user->JWTAuth::save();
 
         return response()->json([
             'status' => 1,
