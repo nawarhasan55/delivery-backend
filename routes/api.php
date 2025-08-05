@@ -40,7 +40,7 @@ Route::post('logout', [AuthController::class, 'logout']);
 
 
 Route::get('/user/profile', [AuthController::class, 'getProfile']);
-Route::put('/user/profile', [AuthController::class, 'updateProfile']);
+Route::post('/user/profile', [AuthController::class, 'updateProfile']);
 
 Route::middleware(['auth:api'])->group(function () {
     Route::post('store_order', [OrderController::class, 'store']);// Route for adding order

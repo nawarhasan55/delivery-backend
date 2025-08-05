@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -149,6 +150,7 @@ class AuthController extends Controller
             ],
             'current_password'=>'required_with:password|string',
             'password'=>'sometimes|required|confirmed|min:8|confirmed',
+            'image'=>'sometimes|image|mimes:jpeg,png,jpg|max:2048'
         ]);
 
         if($validator->fails()) {
@@ -176,12 +178,32 @@ class AuthController extends Controller
         if(isset($data['phone'])) $user->phone =$data['phone'];
         if(isset($data['email'])) $user->email =$data['email'];
 
-        $user->JWTAuth::save();
+        // رفع الصورة الشخصية وحفظها في storage/app/public/profiles
+        if ($request->hasFile('image')) {
+            // حذف الصورة القديمة إن وُجدت
+            if ($user->image) {
+                Storage::disk('public')->delete('profiles/' . $user->image);
+            }
+
+            $image = $request->file('image');
+            $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+            $image->storeAs('profiles', $imageName, 'public');
+            $user->image = $imageName;
+        }
+
+        $user->save();
 
         return response()->json([
             'status' => 1,
             'message' => 'Profile updated successfully',
-            'data' => $user
+            'data' =>[
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone' => $user->phone,
+                'role' => isset($user->role) ? $user->role : 'driver',
+                'image_url' => $user->image ? asset('storage/profiles/' . $user->image) : null
+            ]
         ]);
     }
 }
