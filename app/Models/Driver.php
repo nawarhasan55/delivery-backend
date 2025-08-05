@@ -20,6 +20,7 @@ class Driver extends Authenticatable implements JWTSubject
         'phone',
         'password',
         'role',
+        'image',
     ];
 
     protected $hidden = [
