@@ -162,47 +162,64 @@ class AuthController extends Controller
 
         $data= $validator->validated();
 
-        //تحقق من كلمة المرور الحالية
-        if(isset($data['password'])){
-            if(!Hash::check($data['current_password'],$user->password)) {
+        // هنا الشرط: لو المستخدم عدل أي شيء غير الصورة، لازم يدخل كلمة المرور الحالية
+        $requiresPasswordCheck =isset($data['name'])
+            ||isset($data['phone'])
+            ||isset($data['email'])
+            ||isset($data['password']);
+
+        if($requiresPasswordCheck) {
+            if (!isset($data['current_password'])) {
                 return response()->json([
-                    'status' => 0,
-                    'message' => 'Current password is incorrect'
+                    'status'=>0,
+                    'message'=>'Current password is required to update profile information'
                 ], 400);
             }
 
-            $user->password= Hash::make($data['password']);
+            if (!Hash::check($data['current_password'], $user->password)) {
+                return response()->json([
+                    'status'=>0,
+                    'message'=>'Current password is incorrect'
+                ], 400);
+            }
         }
 
-        if(isset($data['name'])) $user->name =$data['name'];
+        // تعديل البيانات
+        if(isset($data['password'])){
+            $user->password =Hash::make($data['password']);
+        }
+        if(isset($data['name'])) $user->name=$data['name'];
         if(isset($data['phone'])) $user->phone =$data['phone'];
-        if(isset($data['email'])) $user->email =$data['email'];
+        if(isset($data['email'])) $user->email=$data['email'];
 
-        // رفع الصورة الشخصية وحفظها في storage/app/public/profiles
-        if ($request->hasFile('image')) {
-            // حذف الصورة القديمة إن وُجدت
-            if ($user->image) {
+        // حذف أو رفع الصورة
+        if ($request->has('remove_image')&& $request->remove_image) {
+            if($user->image) {
+                Storage::disk('public')->delete('profiles/' . $user->image);
+                $user->image =null;
+            }
+        } elseif($request->hasFile('image')) {
+            if($user->image) {
                 Storage::disk('public')->delete('profiles/' . $user->image);
             }
 
-            $image = $request->file('image');
-            $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+            $image =$request->file('image');
+            $imageName= time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
             $image->storeAs('profiles', $imageName, 'public');
-            $user->image = $imageName;
+            $user->image= $imageName;
         }
-
         $user->save();
 
         return response()->json([
-            'status' => 1,
-            'message' => 'Profile updated successfully',
-            'data' =>[
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'phone' => $user->phone,
-                'role' => isset($user->role) ? $user->role : 'driver',
-                'image_url' => $user->image ? asset('storage/profiles/' . $user->image) : null
+            'status'=>1,
+            'message'=>'Profile updated successfully',
+            'data'=>[
+                'id'=>$user->id,
+                'name'=>$user->name,
+                'email'=>$user->email,
+                'phone'=>$user->phone,
+                'role'=>isset($user->role)? $user->role :'driver',
+                'image_url'=>$user->image? asset('storage/profiles/' . $user->image) : null
             ]
         ]);
     }
