@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreOrderRequest;
+use App\Models\Notification;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -143,9 +144,43 @@ class OrderController extends Controller
         $order->driver_id=$driver->id;
         $order->save();
 
+        // إشعار للمستخدم
+        $userNotification = [
+            'to' => 'user',
+            'title' => 'تم قبول طلبك',
+            'body'  => "طلبك رقم {$order->id} تم قبوله من قبل السائق {$driver->name}"
+        ];
+
+        //إشعار للسائق
+        $driverNotification = [
+            'to' => 'driver',
+            'title' => 'تأكيد الطلب',
+            'body'  => "لقد اخترت طلب الزبون {$order->user->name}"
+        ];
+
+        //للمستخدم
+        Notification::create([
+            'title'=>$userNotification['title'],
+            'body'=>$userNotification['body'],
+            'order_id'=>$order->id,
+            'user_id'=>$order->user_id,
+            'driver_id'=>null,
+        ]);
+        //لعامل التوصيل
+        Notification::create([
+            'title'=>$driverNotification['title'],
+            'body'=>$driverNotification['body'],
+            'order_id'=>$order->id,
+            'user_id'=>null,
+            'driver_id'=>$driver->id,
+        ]);
+
         return response()->json([
             'status'=> 1,
             'message'=> 'Order accepted successfully',
+            'notifications' => [
+                'user' => $userNotification,
+                'driver' => $driverNotification,],
             'order'=> $order
         ]);
     }

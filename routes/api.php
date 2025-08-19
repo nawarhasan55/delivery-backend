@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DriverController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -49,6 +50,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('/orders/my_completed_orders', [OrderController::class, 'getMyCompleteOrder']);// Route for view completed order of user
     Route::delete('/orders/{id}', [OrderController::class, 'deletePendingOrder']);
     Route::put('/orders/{id}', [OrderController::class, 'updatePendingOrder']);
+    Route::get('/notification/user_notify',[UserController::class, 'getUserNotifications']);
 
 });
 
@@ -59,4 +61,5 @@ Route::middleware('auth:driver')->group(function () {
     Route::post('/orders/complete/{id}', [OrderController::class, 'completeOrder']);
     Route::get('/orders/complete', [OrderController::class, 'listCompletedOrders']);
     Route::post('/orders/cancel/{id}', [OrderController::class, 'cancelOrder']);
+    Route::get('/notification/driver_notify',[DriverController::class, 'getDriverNotifications']);
 });

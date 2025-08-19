@@ -23,15 +23,27 @@ class NotificationResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('user_id')
+                Forms\Components\Textarea::make('title')
+                    ->label('title')
                     ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('driver_id')
+                    ->maxLength(500),
+
+                Forms\Components\Textarea::make('body')
+                    ->label('body')
                     ->required()
-                    ->numeric(),
-                Forms\Components\Textarea::make('notif_content')
-                    ->required()
-                    ->columnSpanFull(),
+                    ->maxLength(500),
+
+                Forms\Components\Select::make('user_id')
+                    ->label('User')
+                    ->relationship('user', 'name')
+                    ->searchable()
+                    ->nullable(),
+
+                Forms\Components\Select::make('driver_id')
+                    ->label('Driver')
+                    ->relationship('driver', 'name')
+                    ->searchable()
+                    ->nullable(),
             ]);
     }
 
@@ -39,20 +51,29 @@ class NotificationResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('user_id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('driver_id')
-                    ->numeric()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('id')->sortable(),
+                Tables\Columns\TextColumn::make('title')
+                    ->label('title')
+                    ->limit(50) // يقص النص الطويل
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('body')
+                    ->label('body')
+                    ->limit(50) // يقص النص الطويل
+                    ->searchable(),
+
+                Tables\Columns\TextColumn::make('user.name')
+                    ->label('User')
+                    ->sortable()
+                    ->searchable(),
+
+                Tables\Columns\TextColumn::make('driver.name')
+                    ->label('Driver')
+                    ->sortable()
+                    ->searchable(),
+
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->dateTime('d-m-Y H:i')
+                    ->sortable(),
             ])
             ->filters([
                 //
