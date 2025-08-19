@@ -12,7 +12,9 @@ class Notification extends Model
     use Notifiable;
 
     protected $fillable = [
-        'notif_content',
+        'title',
+        'body',
+        'order_id',
         'user_id',
         'driver_id'
     ];

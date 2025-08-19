@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\VerifyEmail;
+use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -61,5 +62,27 @@ class UserController extends Controller
             'token' => $token
         ], 201);
     }
+
+
+    public function getUserNotifications()
+    {
+        $user = auth('api')->user(); // مستخدم عادي
+        if (!$user) {
+            return response()->json([
+                'status' => 0,
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+
+        $notifications = Notification::where('user_id', $user->id)
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'status' => 1,
+            'notifications' => $notifications
+        ]);
+    }
+
 
 }

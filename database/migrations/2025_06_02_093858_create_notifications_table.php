@@ -13,9 +13,11 @@ return new class extends Migration
     {
         Schema::create('notifications', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('driver_id')->constrained('drivers')->cascadeOnDelete();
-            $table->longText('notif_content');
+            $table->string('title')->nullable();
+            $table->text('body');
+            $table->unsignedBigInteger('order_id')->nullable();
+            $table->foreignId('user_id')->nullable()->constrained('users')->cascadeOnDelete();
+            $table->foreignId('driver_id')->nullable()->constrained('drivers')->cascadeOnDelete();
             $table->rememberToken();
             $table->timestamps();
         });
