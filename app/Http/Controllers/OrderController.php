@@ -147,15 +147,15 @@ class OrderController extends Controller
         // إشعار للمستخدم
         $userNotification = [
             'to' => 'user',
-            'title' => 'تم قبول طلبك',
-            'body'  => "طلبك رقم {$order->id} تم قبوله من قبل السائق {$driver->name}"
+            'title' => 'Accepted Order',
+            'body'  => "Your Order number {$order->id} has been accepted by driver {$driver->name}"
         ];
 
-        //إشعار للسائق
+        //إشعار لعامل التوصيل
         $driverNotification = [
             'to' => 'driver',
-            'title' => 'تأكيد الطلب',
-            'body'  => "لقد اخترت طلب الزبون {$order->user->name}"
+            'title' => 'Confirm Order',
+            'body'  => "You have selected {$order->user->name}’s order"
         ];
 
         //للمستخدم
@@ -164,15 +164,17 @@ class OrderController extends Controller
             'body'=>$userNotification['body'],
             'order_id'=>$order->id,
             'user_id'=>$order->user_id,
-            'driver_id'=>null,
+            'driver_id'=>$order->driver_id,
+            'target'=>'user',
         ]);
         //لعامل التوصيل
         Notification::create([
             'title'=>$driverNotification['title'],
             'body'=>$driverNotification['body'],
             'order_id'=>$order->id,
-            'user_id'=>null,
+            'user_id'=>$order->user_id,
             'driver_id'=>$driver->id,
+            'target'=>'driver',
         ]);
 
         return response()->json([
@@ -267,9 +269,45 @@ class OrderController extends Controller
         $order->status = 'completed';
         $order->save();
 
+        // إشعار للمستخدم
+        $userNotification = [
+            'to' => 'user',
+            'title' => 'Delivered',
+            'body'  => "Your Order number {$order->id} has been successfully delivered by driver {$driver->name}"
+        ];
+
+        //إشعار لعامل التوصيل
+        $driverNotification = [
+            'to' => 'driver',
+            'title' => 'Confirm Order',
+            'body'  => "You have successfully delivered {$order->user->name}’s order"
+        ];
+
+        //للمستخدم
+        Notification::create([
+            'title'=>$userNotification['title'],
+            'body'=>$userNotification['body'],
+            'order_id'=>$order->id,
+            'user_id'=>$order->user_id,
+            'driver_id'=>$order->driver_id,
+            'target'=>'user',
+        ]);
+        //لعامل التوصيل
+        Notification::create([
+            'title'=>$driverNotification['title'],
+            'body'=>$driverNotification['body'],
+            'order_id'=>$order->id,
+            'user_id'=>$order->user_id,
+            'driver_id'=>$driver->id,
+            'target'=>'driver',
+        ]);
+
         return response()->json([
             'status' => 1,
             'message' => 'Order marked as completed successfully',
+            'notifications' => [
+                'user' => $userNotification,
+                'driver' => $driverNotification,],
             'data' => $order
         ]);
     }
@@ -315,9 +353,45 @@ class OrderController extends Controller
         $order->driver_id=null;
         $order->save();
 
+        // إشعار للمستخدم
+        $userNotification = [
+            'to' => 'user',
+            'title' => 'Canceled Order',
+            'body'  => "Your Order number {$order->id} has been canceled by driver {$driver->name}"
+        ];
+
+        //إشعار لعامل التوصيل
+        $driverNotification = [
+            'to' => 'driver',
+            'title' => 'Reject Order',
+            'body'  => "You have cancelled {$order->user->name}’s order"
+        ];
+
+        //للمستخدم
+        Notification::create([
+            'title'=>$userNotification['title'],
+            'body'=>$userNotification['body'],
+            'order_id'=>$order->id,
+            'user_id'=>$order->user_id,
+            'driver_id'=>$driver->driver_id,
+            'target'=>'user',
+        ]);
+        //لعامل التوصيل
+        Notification::create([
+            'title'=>$driverNotification['title'],
+            'body'=>$driverNotification['body'],
+            'order_id'=>$order->id,
+            'user_id'=>$order->user_id,
+            'driver_id'=>$driver->id,
+            'target'=>'driver',
+        ]);
+
         return response()->json([
             'status'=> 1,
             'message'=> 'Order canceled successfully',
+            'notifications' => [
+                'user' => $userNotification,
+                'driver' => $driverNotification,],
             'order'=> $order
         ]);
     }
