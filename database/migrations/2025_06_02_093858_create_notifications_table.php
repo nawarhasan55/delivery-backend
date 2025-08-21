@@ -18,6 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('order_id')->nullable();
             $table->foreignId('user_id')->nullable()->constrained('users')->cascadeOnDelete();
             $table->foreignId('driver_id')->nullable()->constrained('drivers')->cascadeOnDelete();
+            $table->enum('target',['user','driver']);
             $table->rememberToken();
             $table->timestamps();
         });

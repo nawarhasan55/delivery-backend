@@ -16,7 +16,8 @@ class Notification extends Model
         'body',
         'order_id',
         'user_id',
-        'driver_id'
+        'driver_id',
+        'target'
     ];
 
     public function user()

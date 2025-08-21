@@ -20,9 +20,21 @@ class DriverController extends Controller
             ], 401);
         }
 
-        $notifications = Notification::where('driver_id', $driver->id)
+        $notifications = Notification::where('driver_id', $driver->id)->where('target','driver')
             ->latest()
-            ->get();
+            ->with(['user', 'driver'])
+            ->get()
+            ->map(function ($notif) {
+                return [
+                    'id'         => $notif->id,
+                    'title'      => $notif->title,
+                    'body'       => $notif->body,
+                    'order_id'   => $notif->order_id,
+                    'created_at' => $notif->created_at,
+                    'user_name'  => optional($notif->user)->name,
+                    'driver_name'=> optional($notif->driver)->name,
+                ];
+            });
 
         return response()->json([
             'status' => 1,
