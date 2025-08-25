@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DriverController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -63,3 +64,5 @@ Route::middleware('auth:driver')->group(function () {
     Route::post('/orders/cancel/{id}', [OrderController::class, 'cancelOrder']);
     Route::get('/notification/driver_notify',[DriverController::class, 'getDriverNotifications']);
 });
+
+Route::post('/notifications/mark-as-shown/{id}', [NotificationController::class, 'markAsShown']);
