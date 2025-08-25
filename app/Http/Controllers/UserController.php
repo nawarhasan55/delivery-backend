@@ -75,6 +75,7 @@ class UserController extends Controller
         }
 
         $notifications = Notification::where('user_id', $user->id)->where('target','user')
+            ->where('show','true')
             ->latest()
             ->with(['user', 'driver'])
             ->get()
