@@ -21,7 +21,6 @@ class DriverController extends Controller
         }
 
         $notifications = Notification::where('driver_id', $driver->id)->where('target','driver')
-            ->where('show','true')
             ->latest()
             ->with(['user', 'driver'])
             ->get()
