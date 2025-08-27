@@ -28,56 +28,32 @@ class AuthController extends Controller
         $accountType = $request->account_type;
 
         if ($accountType === 'user') {
-            $user =User::where('email', $credentials['email'])->first();
-
-            if(!$user) {
+            if (!$token = auth('api')->attempt($credentials)) {
                 return response()->json([
                     'status' => 0,
-                    'message'=> 'Invalid email'
+                    'message' => 'Invalid email or password'
                 ], 401);
             }
-
-            if (!Hash::check($credentials['password'], $user->password)) {
-                return response()->json([
-                    'status'=> 0,
-                    'message' => 'Invalid password'
-                ], 401);
-            }
-
-            $token = JWTAuth::fromUser($user);
-
-            return response()->json([
-                'status'=> 1,
-                'token' => $token,
-                //'account_type' => $user->role,
-                //'message' => 'User login successful'
-            ]);
-        }
-
-        if ($accountType === 'driver') {
-            $driver =Driver::where('email', $credentials['email'])->first();
-
-            if (!$driver) {
-                return response()->json([
-                    'status' => 0,
-                    'message' => 'Invalid email'
-                ], 401);
-            }
-
-            if (!Hash::check($credentials['password'], $driver->password)) {
-                return response()->json([
-                    'status' => 0,
-                    'message'=> 'Invalid password'
-                ], 401);
-            }
-
-            $token = JWTAuth::fromUser($driver);
 
             return response()->json([
                 'status' => 1,
                 'token' => $token,
-                //'account_type' => 'driver',
-                //'message' => 'Driver login successful'
+                //'account_type' => 'user'
+            ]);
+        }
+
+        if ($accountType === 'driver') {
+            if (!$token = auth('driver')->attempt($credentials)) {
+                return response()->json([
+                    'status' => 0,
+                    'message' => 'Invalid email or password'
+                ], 401);
+            }
+
+            return response()->json([
+                'status' => 1,
+                'token' => $token,
+                //'account_type' => 'driver'
             ]);
         }
 
