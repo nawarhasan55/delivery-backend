@@ -386,14 +386,32 @@ class OrderController extends Controller
             'target'=>'driver',
         ]);
 
+        $orderArray= [
+            'id'=> $order->id,
+            'user_id'=> $order->user_id,
+            'driver_id'=> $driver->id,
+            'driver_name'=> $driver->name,
+            'order_name'=> $order->order_name,
+            'source'=> $order->source,
+            'destination'=> $order->destination,
+            'status'=> $order->status,
+            'created_at'=> $order->created_at,
+            'updated_at'=> $order->updated_at,
+            'user'=> $order->user,
+        ];
+
+
         return response()->json([
             'status'=> 1,
             'message'=> 'Order canceled successfully',
-            'notifications' => [
-                'user' => $userNotification,
-                'driver' => $driverNotification,],
-            'order'=> $order
+            'notifications' =>[
+                'user'=> $userNotification,
+                'driver'=> $driverNotification,
+            ],
+            'order'=> $orderArray
         ]);
+
+
     }
 
 }
