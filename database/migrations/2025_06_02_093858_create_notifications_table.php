@@ -20,6 +20,8 @@ return new class extends Migration
             $table->foreignId('driver_id')->nullable()->constrained('drivers')->cascadeOnDelete();
             $table->enum('target',['user','driver']);
             $table->enum('show',['true','false'])->default('false');
+            $table->enum('user_show',['true','false'])->default('false');
+            $table->enum('driver_show',['true','false'])->default('false');
             $table->rememberToken();
             $table->timestamps();
         });

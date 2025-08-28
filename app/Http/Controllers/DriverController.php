@@ -30,6 +30,8 @@ class DriverController extends Controller
                     'title'      => $notif->title,
                     'body'       => $notif->body,
                     'order_id'   => $notif->order_id,
+                    'user_show'=> $notif-> user_show,
+                    'driver_show'=> $notif-> driver_show,
                     'created_at' => $notif->created_at,
                     'user_name'  => optional($notif->user)->name,
                     'driver_name'=> optional($notif->driver)->name,
