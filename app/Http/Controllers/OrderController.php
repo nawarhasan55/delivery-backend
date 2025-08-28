@@ -367,16 +367,17 @@ class OrderController extends Controller
             'body'  => "You have cancelled {$order->user->name}’s order"
         ];
 
-        //للمستخدم
+        //اظهار للمستخدم
         Notification::create([
             'title'=>$userNotification['title'],
             'body'=>$userNotification['body'],
             'order_id'=>$order->id,
             'user_id'=>$order->user_id,
-            'driver_id'=>$driver->driver_id,
+            'driver_id'=>$driver->id,
             'target'=>'user',
         ]);
-        //لعامل التوصيل
+
+        //اظهار لعامل التوصيل
         Notification::create([
             'title'=>$driverNotification['title'],
             'body'=>$driverNotification['body'],
@@ -385,6 +386,7 @@ class OrderController extends Controller
             'driver_id'=>$driver->id,
             'target'=>'driver',
         ]);
+
 
         $orderArray= [
             'id'=> $order->id,
@@ -410,7 +412,6 @@ class OrderController extends Controller
             ],
             'order'=> $orderArray
         ]);
-
 
     }
 
