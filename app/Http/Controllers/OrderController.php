@@ -373,7 +373,7 @@ class OrderController extends Controller
             'body'=>$userNotification['body'],
             'order_id'=>$order->id,
             'user_id'=>$order->user_id,
-            'driver_id'=>$driver->driver_id,
+            'driver_id'=>$driver->id,
             'target'=>'user',
         ]);
         //لعامل التوصيل
