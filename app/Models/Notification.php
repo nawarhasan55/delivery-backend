@@ -18,7 +18,9 @@ class Notification extends Model
         'user_id',
         'driver_id',
         'target',
-        'show'
+        'show',
+        'user_show',
+        'driver_show'
     ];
 
     public function user()

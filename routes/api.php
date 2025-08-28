@@ -66,3 +66,5 @@ Route::middleware('auth:driver')->group(function () {
 });
 
 Route::post('/notifications/mark-as-shown/{id}', [NotificationController::class, 'markAsShown']);
+Route::post('/notifications/user-shown/{id}', [NotificationController::class, 'userShown']);
+Route::post('/notifications/driver-shown/{id}', [NotificationController::class, 'driverShown']);
