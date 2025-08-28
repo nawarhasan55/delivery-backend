@@ -80,14 +80,15 @@ class UserController extends Controller
             ->get()
             ->map(function ($notif) {
                 return [
-                    'id'         => $notif->id,
-                    'title'      => $notif->title,
-                    'body'       => $notif->body,
-                    'order_id'   => $notif->order_id,
+                    'id'=> $notif->id,
+                    'title'=> $notif->title,
+                    'body'=> $notif->body,
+                    'order_id'=> $notif->order_id,
+                    'show'=> $notif->show,
                     'user_show'=> $notif-> user_show,
                     'driver_show'=> $notif-> driver_show,
-                    'created_at' => $notif->created_at,
-                    'user_name'  => optional($notif->user)->name,
+                    'created_at'=> $notif->created_at,
+                    'user_name'=> optional($notif->user)->name,
                     'driver_name'=> optional($notif->driver)->name,
                 ];
             });
