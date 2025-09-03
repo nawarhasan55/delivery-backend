@@ -154,7 +154,7 @@ class OrderController extends Controller
         //إشعار لعامل التوصيل
         $driverNotification = [
             'to' => 'driver',
-            'title' => 'Confirm Order',
+            'title' => 'Select Order',
             'body'  => "You have selected {$order->user->name}’s order"
         ];
 
