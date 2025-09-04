@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\VerifyEmail;
+use App\Mail\VerifyMail;
 use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -45,13 +46,17 @@ class UserController extends Controller
             'role' => $data['role'],
         ]);
 
-       /* // إرسال رابط التحقق المؤقت
+        /* // إرسال رابط التحقق المؤقت
         $verificationUrl = URL::temporarySignedRoute(
             'auth.verify',
             Carbon::now()->addMinutes(60),
             ['id' => $user->id]
         );
         Mail::to($user->email)->send(new VerifyEmail($verificationUrl));*/
+
+        //أرسال التحقق الى الايميل
+        $code = random_int(100000, 999999);
+        Mail::to($user->email)->send(new VerifyMail($code));
 
         $token = JWTAuth::fromUser($user);
 
@@ -74,22 +79,22 @@ class UserController extends Controller
             ], 401);
         }
 
-        $notifications = Notification::where('user_id', $user->id)->where('target','user')
+        $notifications = Notification::where('user_id', $user->id)->where('target', 'user')
             ->latest()
             ->with(['user', 'driver'])
             ->get()
             ->map(function ($notif) {
                 return [
-                    'id'=> $notif->id,
-                    'title'=> $notif->title,
-                    'body'=> $notif->body,
-                    'order_id'=> $notif->order_id,
-                    'show'=> $notif->show,
-                    'user_show'=> $notif-> user_show,
-                    'driver_show'=> $notif-> driver_show,
-                    'created_at'=> $notif->created_at,
-                    'user_name'=> optional($notif->user)->name,
-                    'driver_name'=> optional($notif->driver)->name,
+                    'id' => $notif->id,
+                    'title' => $notif->title,
+                    'body' => $notif->body,
+                    'order_id' => $notif->order_id,
+                    'show' => $notif->show,
+                    'user_show' => $notif->user_show,
+                    'driver_show' => $notif->driver_show,
+                    'created_at' => $notif->created_at,
+                    'user_name' => optional($notif->user)->name,
+                    'driver_name' => optional($notif->driver)->name,
                 ];
             });
 
@@ -98,6 +103,4 @@ class UserController extends Controller
             'notifications' => $notifications
         ]);
     }
-
-
 }
