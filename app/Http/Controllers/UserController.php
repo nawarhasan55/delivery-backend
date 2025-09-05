@@ -38,12 +38,16 @@ class UserController extends Controller
             ], 400);
         }
         $data = $validator->validated();
+
+        $code = random_int(100000, 999999);
+
         $user = User::create([
             'name' => $data['name'],
             'phone' => $data['phone'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
             'role' => $data['role'],
+            'verification_code' => $code,
         ]);
 
         /* // إرسال رابط التحقق المؤقت
@@ -55,7 +59,7 @@ class UserController extends Controller
         Mail::to($user->email)->send(new VerifyEmail($verificationUrl));*/
 
         //أرسال التحقق الى الايميل
-        $code = random_int(100000, 999999);
+
         Mail::to($user->email)->send(new VerifyMail($code));
 
         $token = JWTAuth::fromUser($user);
@@ -67,6 +71,35 @@ class UserController extends Controller
             'token' => $token
         ], 201);
     }
+
+    public function verifyCode(Request $request)
+    {
+        $request->validate([
+            'code'  => 'required|string'
+        ]);
+
+        // نبحث عن المستخدم بالكود
+        $user = User::where('verification_code', $request->code)->first();
+
+        if (!$user) {
+            return response()->json([
+                'status' => 0,
+                'message' => 'Invalid or expired code'
+            ], 400);
+        }
+
+        // التحقق ناجح
+        $user->email_verified_at = now();
+        $user->verification_code = null; // نحذف الكود بعد التحقق
+        $user->save();
+
+        return response()->json([
+            'status' => 1,
+            'message' => 'Email verified successfully'
+        ]);
+    }
+
+
 
 
     public function getUserNotifications()

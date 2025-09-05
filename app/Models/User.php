@@ -29,6 +29,7 @@ class User extends Authenticatable implements JWTSubject,FilamentUser
         'password',
         'role',
         'image',
+        'verification_code',
     ];
 
     protected $hidden = [

@@ -39,6 +39,7 @@ Route::get('/email/verify/{id}', function ($id, Request $request) {
 Route::post('register', [UserController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
 Route::post('logout', [AuthController::class, 'logout']);
+Route::post('/verify_code',[UserController::class,'verifyCode']);
 
 
 Route::get('/user/profile', [AuthController::class, 'getProfile']);
