@@ -35,6 +35,14 @@ class AuthController extends Controller
                 ], 401);
             }
 
+            $user = auth('api')->user();
+            if (is_null($user->email_verified_at)) {
+                return response()->json([
+                    'status' => 0,
+                    'message' => 'Please verify your email first'
+                ], 403);
+            }
+
             return response()->json([
                 'status' => 1,
                 'token' => $token,
