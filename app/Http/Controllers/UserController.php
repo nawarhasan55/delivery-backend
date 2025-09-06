@@ -75,13 +75,21 @@ class UserController extends Controller
     public function verifyCode(Request $request)
     {
         $request->validate([
-            'code'  => 'required|string'
+            'code' => 'required|string'
         ]);
 
-        // نبحث عن المستخدم بالكود
-        $user = User::where('verification_code', $request->code)->first();
+        // نجيب المستخدم الحالي من التوكن
+        $user = auth('api')->user();
 
         if (!$user) {
+            return response()->json([
+                'status' => 0,
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+
+        // نقارن الكود مع المحفوظ للمستخدم الحالي
+        if ($user->verification_code !== $request->code) {
             return response()->json([
                 'status' => 0,
                 'message' => 'Invalid or expired code'
@@ -90,7 +98,7 @@ class UserController extends Controller
 
         // التحقق ناجح
         $user->email_verified_at = now();
-        $user->verification_code = null; // نحذف الكود بعد التحقق
+        $user->verification_code = null;
         $user->save();
 
         return response()->json([
@@ -98,6 +106,7 @@ class UserController extends Controller
             'message' => 'Email verified successfully'
         ]);
     }
+
 
 
 
